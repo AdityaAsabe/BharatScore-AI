@@ -2,6 +2,7 @@ package com.bharatscore.backend.security;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -11,18 +12,18 @@ import java.util.Date;
 @Service
 public class JwtService {
 
-    private static final String SECRET_KEY =
-            "BharatScoreSuperSecretKeyForJwtAuthentication2026";
-
-    private static final long EXPIRATION_TIME =
-            1000 * 60 * 60; // 1 hour
-
     private final SecretKey key;
+    private final long expirationTime;
 
-    public JwtService() {
+    public JwtService(
+            @Value("${jwt.secret}") String secret,
+            @Value("${jwt.expiration}") long expirationTime
+    ) {
         this.key = Keys.hmacShaKeyFor(
-                SECRET_KEY.getBytes(StandardCharsets.UTF_8)
+                secret.getBytes(StandardCharsets.UTF_8)
         );
+
+        this.expirationTime = expirationTime;
     }
 
     public String generateToken(String email) {
@@ -31,7 +32,10 @@ public class JwtService {
                 .subject(email)
                 .issuedAt(new Date())
                 .expiration(
-                        new Date(System.currentTimeMillis() + EXPIRATION_TIME)
+                        new Date(
+                                System.currentTimeMillis()
+                                        + expirationTime
+                        )
                 )
                 .signWith(key)
                 .compact();
@@ -49,16 +53,16 @@ public class JwtService {
 
     public boolean isTokenValid(String token) {
 
-    try {
-        Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token);
+        try {
+            Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(token);
 
-        return true;
+            return true;
 
-    } catch (Exception e) {
-        return false;
+        } catch (Exception e) {
+            return false;
+        }
     }
-}
 }
