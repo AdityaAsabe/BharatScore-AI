@@ -1,4 +1,9 @@
-const API_BASE_URL = "http://localhost:8080";
+
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  (process.env.NODE_ENV === "production"
+    ? "https://bharatscore-ai.onrender.com"
+    : "http://localhost:8080");
 
 export async function apiFetch(
   endpoint: string,
@@ -26,26 +31,30 @@ export async function apiFetch(
   );
 
   if (!response.ok) {
-  if (
-    response.status === 401 ||
-    response.status === 403
-  ) {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    localStorage.removeItem("applicantId");
+    if (
+      response.status === 401 ||
+      response.status === 403
+    ) {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        localStorage.removeItem("applicantId");
 
-    window.location.href = "/login";
+        window.location.href = "/login";
+      }
 
-    throw new Error("Session expired. Please login again.");
+      throw new Error(
+        "Session expired. Please login again."
+      );
+    }
+
+    const errorText = await response.text();
+
+    throw new Error(
+      errorText ||
+        `Request failed with status ${response.status}`
+    );
   }
-
-  const errorText = await response.text();
-
-  throw new Error(
-    errorText ||
-      `Request failed with status ${response.status}`
-  );
-}
 
   if (response.status === 204) {
     return null;
