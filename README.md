@@ -239,9 +239,9 @@ Unit tests cover the scoring engine (exact expected scores per persona), risk cl
 
 | Role | Name |
 |---|---|
-| Backend · Scoring Engine | *(your name)* |
-| Frontend · UX | *(name)* |
-| Product · Demo | *(name)* |
+| Backend · Scoring Engine | *(Myself)* |
+| Frontend · UX | *(Myself)* |
+| Product · Demo | *(Myself)* |
 
 <div align="center">
 
